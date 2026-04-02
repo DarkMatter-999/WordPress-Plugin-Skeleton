@@ -10,8 +10,8 @@ function generateEntries() {
 	const jsDir = path.resolve( __dirname, 'assets/src/js' );
 	if ( fs.existsSync( jsDir ) ) {
 		fs.readdirSync( jsDir ).forEach( ( file ) => {
-			if ( file.endsWith( '.js' ) ) {
-				const name = `js/${ file.replace( /\.js$/, '' ) }`;
+			if ( file.match( /\.(js|ts|tsx)$/ ) ) {
+				const name = `js/${ file.replace( /\.(js|ts|tsx)$/, '' ) }`;
 				entries[ name ] = path.join( jsDir, file );
 			}
 		} );
@@ -60,6 +60,16 @@ module.exports = {
 	output: {
 		path: path.resolve( __dirname, 'assets/build' ),
 		filename: '[name].js',
+	},
+	resolve: {
+		...defaultConfig.resolve,
+		extensions: [
+			'.tsx',
+			'.ts',
+			'.js',
+			'.jsx',
+			...defaultConfig.resolve.extensions,
+		],
 	},
 	plugins: [
 		...defaultConfig.plugins,

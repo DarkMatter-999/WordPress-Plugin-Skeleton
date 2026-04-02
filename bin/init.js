@@ -72,6 +72,20 @@ function replaceInIncludes() {
 	walkDir( includesDir );
 }
 
+function replaceInPhpstan( pluginFileName ) {
+	const phpstanPath = path.join( process.cwd(), 'phpstan.neon.dist' );
+	if ( fs.existsSync( phpstanPath ) ) {
+		let phpstanContent = fs.readFileSync( phpstanPath, 'utf8' );
+		phpstanContent = phpstanContent
+			.replace( /DarkMatterPlugin\.php/g, pluginFileName )
+			.replace( /DarkMatter_Plugin/g, pluginFileName )
+			.replace( /DarkMatter_Plugin_Namespace/g, answers.namespace );
+		fs.writeFileSync( phpstanPath, phpstanContent, 'utf8' );
+		// eslint-disable-next-line no-console
+		console.log( `🛠️ Updated: ${ phpstanPath }` );
+	}
+}
+
 // Setup CLI interface
 const rl = readline.createInterface( {
 	input: process.stdin,
@@ -190,6 +204,7 @@ Plugin::get_instance();
 	console.log( `📁 Directory: ${ process.cwd() }` );
 
 	replaceInIncludes();
+	replaceInPhpstan( pluginFileName );
 }
 
 askQuestion();
