@@ -4,7 +4,7 @@ This repository provides a skeleton for developing WordPress plugins. It's desig
 
 ## Features
 
-*   **WordPress Scripts Integration:** Leverages `@wordpress/scripts` for easy handling of JavaScript and CSS compilation, linting, and development server setup.
+*   **Vite Build:** Uses Vite for JavaScript, TypeScript, React, and SCSS development and production builds.
 *   **Code Linting:**
     *   **PHP:** Integrated with PHP_CodeSniffer for enforcing consistent PHP coding standards.
     *   **JavaScript:** Uses ESLint via `@wordpress/scripts`.
@@ -24,10 +24,12 @@ cd your-new-plugin-name
 
 ### 2. Install Dependencies
 
-This project uses `npm` for managing front-end and development dependencies.
+Use Node.js `^20.19.0` or `>=22.12.0` and pnpm `12.20.0`. Enable Corepack, activate the pinned pnpm version, and install dependencies:
 
 ```bash
-npm install
+corepack enable
+corepack prepare pnpm@12.20.0 --activate
+pnpm install
 ```
 
 ### 3. Initialize Your Plugin
@@ -35,7 +37,7 @@ npm install
 Run the initialization script to set up your plugin's basic information. This script will prompt you for details like plugin name, author, version, etc., and will update the main plugin file (`.php`) and internal namespaces/constants accordingly.
 
 ```bash
-npm run init
+pnpm run init
 ```
 
 Follow the prompts to enter your plugin's details.
@@ -49,25 +51,35 @@ Once Composer is installed, run:
 composer install
 ```
 
-This will install PHP_CodeSniffer into the `vendor/` directory, allowing `npm run lint:php` to work.
+This installs the PHP tools into `vendor/`, allowing `pnpm lint:php` to work.
 
 ## Development Workflow
 
-### Starting the Development Server
+### Starting WordPress and Vite
 
-To start the development server for JavaScript and CSS, which watches for changes and provides hot reloading:
+Start WordPress in one terminal:
 
 ```bash
-npm start
+pnpm wp-env:start
 ```
+
+In a second terminal, start Vite:
+
+```bash
+pnpm dev
+```
+
+Open WordPress at <http://localhost:8888>. JavaScript and stylesheet changes use Vite HMR. Changes under `assets/src/blocks/` trigger a full editor/page reload so block registrations are not hot-swapped into a stale editor session. The dev command writes and refreshes the ignored `assets/build/hot` marker while Vite is running, and removes it on shutdown.
 
 ### Building for Production
 
-To compile and minify your JavaScript and CSS for production:
+Build production JavaScript and CSS:
 
 ```bash
-npm run build
+pnpm build
 ```
+
+Deploy the generated `assets/build/` directory with the plugin. Production resolves assets from its Vite manifest and does not require Node.js or a running Vite server at runtime.
 
 ### Code Linting and Formatting
 
@@ -75,31 +87,31 @@ This skeleton comes with pre-configured linting rules for PHP, JavaScript, and C
 
 *   **Lint All:**
     ```bash
-    npm run lint
+    pnpm lint
     ```
 *   **Lint CSS/SCSS:**
     ```bash
-    npm run lint:css
+    pnpm lint:css
     ```
 *   **Fix CSS/SCSS Linting Issues:**
     ```bash
-    npm run lint:css:fix
+    pnpm lint:css:fix
     ```
 *   **Lint JavaScript:**
     ```bash
-    npm run lint:js
+    pnpm lint:js
     ```
 *   **Fix JavaScript Linting Issues:**
     ```bash
-    npm run lint:js:fix
+    pnpm lint:js:fix
     ```
 *   **Lint PHP:**
     ```bash
-    npm run lint:php
+    pnpm lint:php
     ```
 *   **Fix PHP Linting Issues:**
     ```bash
-    npm run lint:php:fix
+    pnpm lint:php:fix
     ```
 
 ### Pre-Commit Linting
@@ -113,13 +125,13 @@ You don't need to run `lint:staged` manually; it's triggered by Git when you com
 *   `bin/`: Contains utility scripts, including `init.js`.
 *   `include/`: Main directory for your plugin's PHP classes and core logic.
     *   `include/helpers/autoloader.php`: Basic autoloader for your plugin classes.
-*   `src/`: Contains your raw JavaScript and CSS/SCSS files.
-*   `build/`: (Generated) Compiled and minified assets from `npm run build`.
+*   `assets/src/`: Contains source JavaScript, TypeScript, and SCSS files.
+*   `assets/build/`: (Generated and ignored) Production assets and Vite manifest from `pnpm build`; also contains the temporary dev marker while `pnpm dev` is running.
 *   `vendor/`: (Generated) Composer dependencies (e.g., PHP_CodeSniffer).
-*   `<your-plugin-name>.php`: The main plugin file, generated and updated by `npm run init`.
+*   `<your-plugin-name>.php`: The main plugin file, generated and updated by `pnpm run init`.
 *   `stylelintrc.json`: Stylelint configuration.
 *   `phpcs.xml`: PHP_CodeSniffer configuration.
-*   `package.json`: Project metadata and npm scripts.
+*   `package.json`: Project metadata and pnpm scripts.
 *   `composer.json`: Composer metadata and dependencies.
 
 ## Customization
